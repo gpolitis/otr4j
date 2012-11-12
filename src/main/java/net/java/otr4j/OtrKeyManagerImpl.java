@@ -87,7 +87,11 @@ public class OtrKeyManagerImpl implements OtrKeyManager {
 
 		public void removeProperty(String id) {
 			properties.remove(id);
-
+			try {
+				this.store();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 
 		public byte[] getPropertyBytes(String id) {
