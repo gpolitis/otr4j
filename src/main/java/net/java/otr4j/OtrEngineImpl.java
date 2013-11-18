@@ -54,6 +54,11 @@ public class OtrEngineImpl implements OtrEngine {
 					for (OtrEngineListener l : listeners)
 						l.sessionStatusChanged(sessionID);
 				}
+
+				public void sessionIsStarting(SessionID sessionID) {
+				    for (OtrEngineListener l : listeners)
+                        l.sessionIsStarting(sessionID);
+				}
 			});
 			return session;
 		} else

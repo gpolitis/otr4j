@@ -11,4 +11,6 @@ import net.java.otr4j.session.SessionID;
  */
 public interface OtrEngineListener {
 	public abstract void sessionStatusChanged(SessionID sessionID);
+
+	public abstract void sessionIsStarting(SessionID sessionID);
 }
