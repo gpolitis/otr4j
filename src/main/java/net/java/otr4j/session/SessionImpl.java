@@ -727,7 +727,7 @@ public class SessionImpl implements Session {
 			throw new UnsupportedOperationException();
 
 		for (OtrEngineListener l : this.listeners)
-		    l.sessionStatusChanged(getSessionID());
+		    l.sessionIsStarting(getSessionID());
 
 		this.getAuthContext().startV2Auth();
 	}

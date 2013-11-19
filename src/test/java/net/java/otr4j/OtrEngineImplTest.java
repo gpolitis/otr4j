@@ -3,6 +3,7 @@ package net.java.otr4j;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import net.java.otr4j.OtrPolicy;
@@ -145,6 +146,68 @@ public class OtrEngineImplTest extends junit.framework.TestCase {
 		this.startSessionWithQuery();
 		this.exchageMessages();
 		this.endSession();
+	}
+
+	public void testOtrEngineListener() throws Exception {
+	    host = new DummyOtrEngineHost(new OtrPolicyImpl(OtrPolicy.ALLOW_V2
+                | OtrPolicy.ERROR_START_AKE));
+
+	    usAlice = new OtrEngineImpl(host);
+	    usBob = new OtrEngineImpl(host);
+
+	    /*
+	     * These AtomicBooleans will be used as flag indicators for whether the
+	     * corresponding methods in OtrEngineListener are called.
+	     */
+	    final AtomicBoolean isSessionStatusChangedCalled = new AtomicBoolean();
+	    final AtomicBoolean isSessionIsStartingCalled = new AtomicBoolean();
+	    usAlice.addOtrEngineListener(new OtrEngineListener() {
+            public void sessionStatusChanged(SessionID sessionID)
+            {
+                isSessionStatusChangedCalled.set(true);
+            }
+
+            public void sessionIsStarting(SessionID sessionID)
+            {
+                isSessionIsStartingCalled.set(true);
+            }
+	    });
+
+	    usAlice.startSession(aliceSessionID);
+
+	    // Session is starting so the OtrEngineListener must have been notified
+	    // at this point.
+	    assertTrue(isSessionIsStartingCalled.get());
+
+	    // Bob receives query, sends D-H commit.
+
+        usBob.transformReceiving(bobSessionID, host.lastInjectedMessage);
+
+        // Alice received D-H Commit, sends D-H key.
+        usAlice
+                .transformReceiving(aliceSessionID,
+                        host.lastInjectedMessage);
+
+        // Bob receives D-H Key, sends reveal signature.
+        usBob.transformReceiving(bobSessionID, host.lastInjectedMessage);
+
+        // Alice receives Reveal Signature, sends signature and goes secure.
+        usAlice
+                .transformReceiving(aliceSessionID,
+                        host.lastInjectedMessage);
+
+        // Bobs receives Signature, goes secure.
+        usBob.transformReceiving(bobSessionID, host.lastInjectedMessage);
+
+        if (usBob.getSessionStatus(bobSessionID) != SessionStatus.ENCRYPTED
+                || usAlice.getSessionStatus(aliceSessionID) != SessionStatus.ENCRYPTED)
+            fail("Could not establish a secure session.");
+
+        // Session status has been changed so the OtrEngineListener must have
+        // been notified at this point.
+        assertTrue(isSessionStatusChangedCalled.get());
+
+	    usAlice.endSession(aliceSessionID);
 	}
 
 	private OtrEngineImpl usAlice;
