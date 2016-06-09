@@ -116,7 +116,11 @@ public class OtrKeyManagerImpl implements OtrKeyManager {
 		@Override
 		public void removeProperty(String id) {
 			properties.remove(id);
-
+			try {
+				this.store();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 
 		@Override
