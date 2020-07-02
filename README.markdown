@@ -1,3 +1,8 @@
+# Repository moved to https://github.com/jitsi/otr4j!
+This repository used be the Jitsi Desktop otr4j source. The root of the otr4j fork tree was for some time the redsolution organization and later the otr4j organization. The root of the fork tree and the main, maintained otr4j repository is now https://github.com/jitsi/otr4j.
+
+-------
+
 ## Synopsis
 
 otr4j is an implementation of the [OTR (Off The Record) protocol][1]
